@@ -1,101 +1,192 @@
+"use client";
+
 import Image from "next/image";
+import Form from "next/form";
+import { useState, useEffect } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [activity, setActivity] = useState<string>("");
+  const [activities, setActivities] = useState<string[]>([]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  const [price, setPrice] = useState<number | undefined>(undefined);
+  const [prices, setPrices] = useState<number[]>([]);
+
+  const [type, setType] = useState<string>("");
+  const [types, setTypes] = useState<string[]>([]);
+
+  const [booking, setBooking] = useState(false);
+
+  const [acs, setAcs] = useState<string>("");
+  const [acss, setAcss] = useState<string[]>([]);
+
+  useEffect(() => {
+    const savedActivities = JSON.parse(
+      localStorage.getItem("activities") || "[]"
+    );
+    const savedPrices = JSON.parse(localStorage.getItem("prices") || "[]");
+    const savedTypes = JSON.parse(localStorage.getItem("types") || "[]");
+    const savedAcss = JSON.parse(localStorage.getItem("acss") || "[]");
+
+    setActivities(savedActivities);
+    setPrices(savedPrices);
+    setTypes(savedTypes);
+    setAcss(savedAcss);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("activities", JSON.stringify(activities));
+    localStorage.setItem("prices", JSON.stringify(prices));
+    localStorage.setItem("types", JSON.stringify(types));
+    localStorage.setItem("acss", JSON.stringify(acss));
+  }, [activities, prices, types, acss]);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (activity.trim() === "") return;
+    if (price === undefined) return;
+
+    setActivities([...activities, activity]);
+    setActivity("");
+
+    setPrices([...prices, price]);
+    setPrice(undefined);
+
+    setTypes([...types, type]);
+
+    setAcss([...acss, acs]);
+
+    console.log("New Entry Added:");
+    console.log({
+      activity,
+      price,
+      type,
+      acs,
+    });
+
+    console.log("Updated Lists:");
+    console.log("Activities:", [...activities, activity]);
+    console.log("Prices:", [...prices, price]);
+    console.log("Types:", [...types, type]);
+    console.log("Acs:", [...acss, acs]);
+
+    setType("");
+    setAcs("");
+  };
+
+  const handleDelete = (index: number) => {
+    setActivities(activities.filter((_, i) => i !== index));
+    setPrices(prices.filter((_, i) => i !== index));
+    setTypes(types.filter((_, i) => i !== index));
+    setAcss(acss.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+        <h2 className="text-2xl font-semibold text-center mb-6 text-blue-500">
+          Add List
+        </h2>
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <div>
+            <label className="block mb-2 text-sm font-medium text-gray-600">
+              Activity
+            </label>
+            <input
+              type="text"
+              className="w-50 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-800"
+              placeholder="Enter your activity"
+              onChange={(e) => setActivity(e.target.value)}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </div>
+          <div>
+            <label className="block mb-2 text-sm font-medium text-gray-600">
+              Price
+            </label>
+            <input
+              type="number"
+              className="w-50 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-800"
+              placeholder="Enter your price"
+              value={price ?? ""}
+              onChange={(e) =>
+                setPrice(e.target.value ? Number(e.target.value) : undefined)
+              }
+            />
+          </div>
+          <div>
+            <label className="block mb-2 text-sm font-medium text-gray-600">
+              Type
+            </label>
+            <select
+              id="options"
+              name="options"
+              className="w-50 border border-gray-300 rounded-md px-4 py-2 text-gray-600"
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+            >
+              <option value="option1">Educational</option>
+              <option value="option2">Recreational</option>
+              <option value="option3">Social</option>
+              <option value="option1">DIY</option>
+              <option value="option2">Charity</option>
+              <option value="option3">Cooking</option>
+              <option value="option1">Relaxation</option>
+              <option value="option2">Music</option>
+              <option value="option3">Busywork</option>
+            </select>
+          </div>
+          <div className="flex items-center">
+            <label className="mb-2 text-md font-medium text-gray-600">
+              Booking<span className="text-red-500 text-md">*</span>
+            </label>
+            <input
+              type="checkbox"
+              className="w-10 h-3 scale-130 mb-1"
+              id="booking"
+              checked={booking}
+              onChange={(e) => setBooking(e.target.checked)}
+              required
+            ></input>
+          </div>
+          <div className="flex items-center">
+            <label className="mb-2 text-md font-medium text-gray-600">
+              Accessiblity 0.0 to 1.0
+            </label>
+            <input
+              className="ml-5 w-50 h-3 mb-1"
+              type="range"
+              id="acs"
+              min="0.0"
+              max="1.0"
+              step="0.1"
+              value={acs}
+              onChange={(e) => setAcs(e.target.value)}
+            ></input>
+          </div>
+          <button
+            className="border border-gray-300 rounded-md px-4 py-2 text-white bg-blue-300 hover:border-blue-800 hover:text-blue-800"
+            type="submit"
           >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+            Submit
+          </button>
+
+          <h2 className="text-black">
+            List of Activities | Total Activities: {activities.length}
+          </h2>
+          <ul>
+            {activities.map((act, index) => (
+              <li className="text-black" key={index}>
+                {act} - RM{prices[index]} - {types[index]} - {acss[index]}
+                <button
+                  className=" ml-4 text-red-500 hover:underline"
+                  onClick={() => handleDelete(index)}
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        </form>
+      </div>
     </div>
   );
 }
